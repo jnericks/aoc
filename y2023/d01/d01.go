@@ -80,8 +80,8 @@ func ParseLine(line string) (int, error) {
 
 	second, err := func() (int, error) {
 		for i := len(line) - 1; i >= 0; i-- {
-			if d, ok := num[line[i]]; ok {
-				return d, nil
+			if v, ok := num[line[i]]; ok {
+				return v, nil
 			}
 			for k, v := range txt {
 				if strings.HasSuffix(line[:i+1], k) {
