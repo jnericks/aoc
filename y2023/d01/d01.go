@@ -15,12 +15,12 @@ var input []byte
 func ReadInput() []string {
 	s := bufio.NewScanner(bytes.NewBuffer(input))
 
-	var input []string
+	var out []string
 	for s.Scan() {
-		input = append(input, s.Text())
+		out = append(out, s.Text())
 	}
 
-	return input
+	return out
 }
 
 func ParseInput(input []string) ([]int, error) {
