@@ -131,6 +131,10 @@ func totalCards(cards []Card, counts []int, idx int) int {
 		return 0
 	}
 
+	if counts[idx] >= 0 {
+		return counts[idx]
+	}
+
 	var total int
 	for i := idx + 1; i < len(cards) && i <= idx+cards[idx].Matching; i++ {
 		total += totalCards(cards, counts, i)
