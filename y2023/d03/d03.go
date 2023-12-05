@@ -53,7 +53,7 @@ func (s Symbol) IsGear() bool {
 }
 
 func (s Symbol) String() string {
-	return fmt.Sprintf("S{i:%d v:%s}", s.Index, string(s.Value))
+	return fmt.Sprintf("SrcNum{i:%d v:%s}", s.Index, string(s.Value))
 }
 
 func IsSymbol(b byte) bool {
