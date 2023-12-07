@@ -106,9 +106,6 @@ type Hand struct {
 
 	// Type is the type of the hand.
 	Type HandType
-
-	// TypeJoker is the type of the hand if 'J' is a Joker.
-	TypeJoker HandType
 }
 
 func (h Hand) String() string {
@@ -227,6 +224,7 @@ func DetermineHandType(cards string) (HandType, error) {
 	case 1:
 		return TypeFiveOfAKind, nil
 	}
+
 	return "", fmt.Errorf("could not determine hand type for cards '%s'", cards)
 }
 
