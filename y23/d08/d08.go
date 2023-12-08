@@ -103,36 +103,20 @@ func ParseData(data []string) (Map, error) {
 	}, nil
 }
 
-func (m *Map) Walk1(start string) int {
-	node := m.Guide[start]
-
-	var steps int
-	for i := 0; i < math.MaxInt; i++ {
-		if node.Pos == "ZZZ" {
-			return steps
-		}
-
-		// move
-		switch m.Path[i%len(m.Path)] {
-		case 'L':
-			node = node.L
-		case 'R':
-			node = node.R
-		default:
-			panic("unexpected")
-		}
-		steps++
-	}
-
-	return -1
+func NodeIsZZZ(node *Node) bool {
+	return node.Pos == "ZZZ"
 }
 
-func (m *Map) Walk2(start string) int {
+func NodeEndsWithZ(node *Node) bool {
+	return node.Pos[2] == 'Z'
+}
+
+func (m *Map) Walk(start string, isEnd func(*Node) bool) int {
 	node := m.Guide[start]
 
 	var steps int
 	for i := 0; i < math.MaxInt; i++ {
-		if node.Pos[2] == 'Z' {
+		if isEnd(node) {
 			return steps
 		}
 
@@ -152,33 +136,16 @@ func (m *Map) Walk2(start string) int {
 }
 
 func (m *Map) WalkStartNodes() int {
-	lcm := m.Walk2(m.StartNodes[0].Pos)
+	lcm := m.Walk(m.StartNodes[0].Pos, NodeEndsWithZ)
 	if len(m.StartNodes) == 1 {
 		return lcm
 	}
 
 	for _, node := range m.StartNodes[1:] {
-		lcm = LCM(lcm, m.Walk2(node.Pos))
+		lcm = LCM(lcm, m.Walk(node.Pos, NodeEndsWithZ))
 	}
 
 	return lcm
-}
-
-func (m *Map) MultiWalk(current []*Node, direction byte) []*Node {
-	out := make([]*Node, 0, len(current))
-	switch direction {
-	case 'L':
-		for _, ins := range current {
-			out = append(out, ins.L)
-		}
-	case 'R':
-		for _, ins := range current {
-			out = append(out, ins.R)
-		}
-	default:
-		panic("unexpected")
-	}
-	return out
 }
 
 func LCM(a, b int) int {
