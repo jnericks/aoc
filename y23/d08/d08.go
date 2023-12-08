@@ -75,32 +75,34 @@ func ParseData(data []string) (Map, error) {
 	}
 
 	type parsed struct {
-		Pos string
-		L   string
-		R   string
+		L string
+		R string
 	}
 
-	guide := make(map[string]*Node)
-	intermediary := make(map[string]parsed)
+	nodeMap := make(map[string]parsed)
+	nodes := make(map[string]*Node)
 	var startNodes []*Node
 	for _, row := range data[2:] {
 		pos := row[0:3]
-		intermediary[pos] = parsed{Pos: pos, L: row[7:10], R: row[12:15]}
-		node := &Node{Pos: pos}
-		guide[pos] = node
+		nodeMap[pos] = parsed{
+			L: row[7:10],
+			R: row[12:15],
+		}
+		nodes[pos] = &Node{Pos: pos}
 		if pos[2] == 'A' {
-			startNodes = append(startNodes, guide[pos])
+			startNodes = append(startNodes, nodes[pos])
 		}
 	}
 
-	for _, d := range intermediary {
-		guide[d.Pos].L = guide[d.L]
-		guide[d.Pos].R = guide[d.R]
+	// link nodes in the graph
+	for pos, d := range nodeMap {
+		nodes[pos].L = nodes[d.L]
+		nodes[pos].R = nodes[d.R]
 	}
 
 	return Map{
 		Path:       format,
-		Nodes:      guide,
+		Nodes:      nodes,
 		StartNodes: startNodes,
 	}, nil
 }
