@@ -72,7 +72,3 @@ func Test_Example1(t *testing.T) {
 
 	assert.Equal(t, 2, m.Walk("AAA", NodeZZZ))
 }
-
-func Test_ParseInput(t *testing.T) {
-
-}
