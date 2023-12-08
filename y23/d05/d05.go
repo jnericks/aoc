@@ -11,15 +11,15 @@ import (
 )
 
 var (
-	//go:embed example1.txt
-	example1 []byte
+	//go:embed example.txt
+	example []byte
 
 	//go:embed input.txt
 	input []byte
 )
 
-func ReadExample1() []string {
-	s := bufio.NewScanner(bytes.NewBuffer(example1))
+func ReadExample() []string {
+	s := bufio.NewScanner(bytes.NewBuffer(example))
 	var out []string
 	for s.Scan() {
 		out = append(out, s.Text())

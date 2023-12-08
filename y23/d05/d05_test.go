@@ -35,7 +35,7 @@ func Test_Solve(t *testing.T) {
 
 func Test_ParseAlmanac(t *testing.T) {
 	t.Run("seed at lowest location", func(t *testing.T) {
-		data := ReadExample1()
+		data := ReadExample()
 		almanac, err := ParseAlmanac(data)
 		require.NoError(t, err)
 
@@ -51,7 +51,7 @@ func Test_ParseAlmanac(t *testing.T) {
 		assert.Equal(t, 35, loc)
 	})
 
-	data := ReadExample1()
+	data := ReadExample()
 	almanac, err := ParseAlmanac(data)
 	require.NoError(t, err)
 
