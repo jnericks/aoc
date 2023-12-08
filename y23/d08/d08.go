@@ -35,8 +35,10 @@ func ReadData(data []byte) []string {
 type Map struct {
 	Path []byte
 
-	Guide map[string]*Node
+	// Nodes are the nodes in the graph.
+	Nodes map[string]*Node
 
+	// StartNodes are nodes with an 'A' suffix.
 	StartNodes []*Node
 }
 
@@ -98,21 +100,21 @@ func ParseData(data []string) (Map, error) {
 
 	return Map{
 		Path:       format,
-		Guide:      guide,
+		Nodes:      guide,
 		StartNodes: startNodes,
 	}, nil
 }
 
-func NodeIsZZZ(node *Node) bool {
+func NodeZZZ(node *Node) bool {
 	return node.Pos == "ZZZ"
 }
 
 func NodeEndsWithZ(node *Node) bool {
-	return node.Pos[2] == 'Z'
+	return node.Pos[len(node.Pos)-1] == 'Z'
 }
 
 func (m *Map) Walk(start string, isEnd func(*Node) bool) int {
-	node := m.Guide[start]
+	node := m.Nodes[start]
 
 	var steps int
 	for i := 0; i < math.MaxInt; i++ {
