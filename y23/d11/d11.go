@@ -5,7 +5,7 @@ import (
 	_ "embed"
 	"errors"
 
-	"github.com/jnericks/aoc/data"
+	"github.com/jnericks/aoc/util"
 )
 
 var (
@@ -67,7 +67,7 @@ func (u *Universe) String() string {
 }
 
 func Parse(file []byte) (*Universe, error) {
-	grid := data.Strings(file)
+	grid := util.ReadStrings(file)
 
 	// validate
 	if len(grid) == 0 {

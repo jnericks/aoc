@@ -1,7 +1,6 @@
 package d10
 
 import (
-	"bufio"
 	"bytes"
 	_ "embed"
 	"errors"
@@ -12,15 +11,6 @@ var (
 	//go:embed input.txt
 	InputData []byte
 )
-
-func ReadData(data []byte) []string {
-	s := bufio.NewScanner(bytes.NewBuffer(data))
-	var out []string
-	for s.Scan() {
-		out = append(out, s.Text())
-	}
-	return out
-}
 
 type Grid struct {
 	Start *Pipe

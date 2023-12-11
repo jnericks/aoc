@@ -1,11 +1,11 @@
-package data
+package util
 
 import (
 	"bufio"
 	"bytes"
 )
 
-func Strings(file []byte) []string {
+func ReadStrings(file []byte) []string {
 	s := bufio.NewScanner(bytes.NewBuffer(file))
 	var out []string
 	for s.Scan() {
@@ -14,7 +14,7 @@ func Strings(file []byte) []string {
 	return out
 }
 
-func Bytes(file []byte) [][]byte {
+func ReadBytes(file []byte) [][]byte {
 	s := bufio.NewScanner(bytes.NewBuffer(file))
 	var out [][]byte
 	for s.Scan() {

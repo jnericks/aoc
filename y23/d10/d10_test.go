@@ -3,12 +3,13 @@ package d10
 import (
 	"testing"
 
+	"github.com/jnericks/aoc/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_Solve(t *testing.T) {
-	grid, err := ParseData(ReadData(InputData))
+	grid, err := ParseData(util.ReadStrings(InputData))
 	require.NoError(t, err)
 
 	assert.Equal(t, 95, grid.Start.V)
