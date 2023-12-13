@@ -12,12 +12,51 @@ var (
 	InputData []byte
 )
 
-type Grid struct {
-	Start *Pipe
-	Pipes [][]*Pipe
+type TileType string
+
+const (
+	// PipeNS '|' is a vertical pipe connecting north and south.
+	PipeNS TileType = "|"
+	// PipeEW '-' is a horizontal pipe connecting east and west.
+	PipeEW TileType = "-"
+	// PipeNE 'L' is a 90-degree bend connecting north and east.
+	PipeNE TileType = "L"
+	// PipeNW 'J' is a 90-degree bend connecting north and west.
+	PipeNW TileType = "J"
+	// PipeSW '7' is a 90-degree bend connecting south and west.
+	PipeSW TileType = "7"
+	// PipeSE 'F' is a 90-degree bend connecting south and east.
+	PipeSE TileType = "F"
+	// Ground '.' is ground; there is no pipe in this tile.
+	Ground TileType = "."
+)
+
+func (t TileType) String() string {
+	switch t {
+	case PipeNS:
+		return "│"
+	case PipeEW:
+		return "─"
+	case PipeNE:
+		return "└"
+	case PipeNW:
+		return "┘"
+	case PipeSW:
+		return "┐"
+	case PipeSE:
+		return "┌"
+	case Ground:
+		return "."
+	}
+	return string(t)
 }
 
-func (g Grid) FarthestPipe() *Pipe {
+type Grid struct {
+	Start *Tile
+	Pipes [][]*Tile
+}
+
+func (g Grid) FarthestPipe() *Tile {
 	pipe := g.Pipes[0][0]
 	for v := range g.Pipes {
 		for _, p := range g.Pipes[v] {
@@ -33,9 +72,10 @@ func (g Grid) PrintLoop() {
 	for v := range g.Pipes {
 		for h, pipe := range g.Pipes[v] {
 			if v == g.Start.V && h == g.Start.H {
-				fmt.Print("S")
-			} else if pipe.Distance >= 0 {
-				fmt.Print(string(pipe.Type))
+				fmt.Print(pipe.Type)
+				// fmt.Print("S")
+			} else if pipe.Distance >= 0 { // part of the loop
+				fmt.Print(pipe.Type)
 				// fmt.Print("*")
 			} else {
 				fmt.Print(".")
@@ -49,32 +89,35 @@ func (g Grid) String() string {
 	var out bytes.Buffer
 	for _, row := range g.Pipes {
 		for _, tile := range row {
-			out.WriteRune(tile.Type)
+			out.WriteString(tile.Type.String())
 		}
 		out.WriteByte('\n')
 	}
 	return out.String()
 }
 
-type Pipe struct {
+type Tile struct {
 	// V is the vertical index in the pipe grid (top to bottom)
 	V int
 
 	// H is the horizontal index in the pipe grid (left to right)
 	H int
 
-	// Type is one of { |, -, L, J, 7, F, ., S }
-	Type rune
+	// Start is true if this is the starting tile.
+	Start bool
 
-	// Pipe Connections
-	North, East, South, West *Pipe
+	// Type is the tile type.
+	Type TileType
+
+	// Tile Connections
+	North, East, South, West *Tile
 
 	// Distance is the distance from the Start pipe (-1 if not connected to start pipe).
 	Distance int
 }
 
-func (p *Pipe) Neighbors() []*Pipe {
-	out := make([]*Pipe, 0, 2)
+func (p *Tile) Neighbors() []*Tile {
+	out := make([]*Tile, 0, 2)
 	if p.North != nil {
 		out = append(out, p.North)
 	}
@@ -91,63 +134,65 @@ func (p *Pipe) Neighbors() []*Pipe {
 }
 
 func ParseData(data []string) (Grid, error) {
-	var start *Pipe
+	var start *Tile
 
 	// setup tile grid
-	pipes := make([][]*Pipe, len(data))
+	tiles := make([][]*Tile, len(data))
 	for v, row := range data {
-		pipes[v] = make([]*Pipe, len(row))
+		tiles[v] = make([]*Tile, len(row))
 		for h, pipe := range row {
-			pipes[v][h] = &Pipe{V: v, H: h, Type: pipe, Distance: -1}
+			tiles[v][h] = &Tile{V: v, H: h, Type: TileType(pipe), Distance: -1}
 		}
 	}
 
-	getPipe := func(v, h int) *Pipe {
+	getPipe := func(v, h int) *Tile {
 		if v < 0 || v >= len(data) {
 			return nil
 		}
 		if h < 0 || h >= len(data[v]) {
 			return nil
 		}
-		return pipes[v][h]
+		return tiles[v][h]
 	}
 
 	for v, row := range data {
-		for h, pipeType := range row {
-			pipe := pipes[v][h]
+		for h, t := range row {
+			tile := tiles[v][h]
+			tileType := TileType(t)
 
-			switch pipeType {
-			case '|', 'L', 'J':
-				pipe.North = getPipe(v-1, h)
+			switch tileType { // North Connection
+			case PipeNS, PipeNE, PipeNW:
+				tile.North = getPipe(v-1, h)
 			}
 
-			switch pipeType {
-			case '-', 'L', 'F':
-				pipe.East = getPipe(v, h+1)
+			switch tileType { // East Connection
+			case PipeEW, PipeNE, PipeSE:
+				tile.East = getPipe(v, h+1)
 			}
 
-			switch pipeType {
-			case '|', '7', 'F':
-				pipe.South = getPipe(v+1, h)
+			switch tileType { // South Connection
+			case PipeNS, PipeSE, PipeSW:
+				tile.South = getPipe(v+1, h)
 			}
 
-			switch pipeType {
-			case '-', 'J', '7':
-				pipe.West = getPipe(v, h-1)
+			switch tileType { // West Connection
+			case PipeEW, PipeNW, PipeSW:
+				tile.West = getPipe(v, h-1)
 			}
 
-			if pipeType == 'S' {
-				// assume start pipe is connected to neighboring pipes
-				pipe.North = getPipe(v-1, h)
-				pipe.East = getPipe(v, h+1)
-				pipe.South = getPipe(v+1, h)
-				pipe.West = getPipe(v, h-1)
+			if t == 'S' {
+				// assume start tile is connected to neighboring tiles
+				tile.North = getPipe(v-1, h)
+				tile.East = getPipe(v, h+1)
+				tile.South = getPipe(v+1, h)
+				tile.West = getPipe(v, h-1)
 
-				pipe.Distance = 0
-				start = pipe
+				tile.Distance = 0
+				tile.Start = true
+				start = tile
 			}
 
-			pipes[v][h] = pipe
+			tiles[v][h] = tile
 		}
 	}
 
@@ -155,9 +200,9 @@ func ParseData(data []string) (Grid, error) {
 		return Grid{}, errors.New("no starting pipe found")
 	}
 
-	// remove pipes that are not bi-directionally connected
-	for _, tileRow := range pipes {
-		for _, tile := range tileRow {
+	// remove tiles that are not bi-directionally connected
+	for _, row := range tiles {
+		for _, tile := range row {
 			if tile.North != nil && tile.North.South != tile {
 				tile.North = nil
 			}
@@ -175,12 +220,12 @@ func ParseData(data []string) (Grid, error) {
 
 	// find the loop
 	type travel struct {
-		current   *Pipe
+		current   *Tile
 		distances [][]int
 		success   bool
 	}
 
-	visited := func(t travel, p *Pipe) bool {
+	visited := func(t travel, p *Tile) bool {
 		v, h := p.V, p.H
 		if 0 <= v && v < len(t.distances[v]) {
 			if 0 <= h && h < len(t.distances[v]) {
@@ -254,14 +299,14 @@ func ParseData(data []string) (Grid, error) {
 		}
 	}
 
-	for v := range pipes {
-		for h, pipe := range pipes[v] {
+	for v := range tiles {
+		for h, pipe := range tiles[v] {
 			pipe.Distance = minDistances[v][h]
 		}
 	}
 
 	return Grid{
 		Start: start,
-		Pipes: pipes,
+		Pipes: tiles,
 	}, nil
 }
