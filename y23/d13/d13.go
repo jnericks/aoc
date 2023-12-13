@@ -50,7 +50,7 @@ func (g *Grid) Solve(equal func([]string, []string) bool) int {
 		}
 		for i := 1; i < len(s); i++ {
 			l := min(i, len(s)-i)
-			a := slices.Clone(s[i-l : i]) // left
+			a := s[i-l : i]               // left
 			b := slices.Clone(s[i : i+l]) // right
 			slices.Reverse(b)
 			if equal(a, b) {
