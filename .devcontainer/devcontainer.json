@@ -1,0 +1,20 @@
+{
+    "name": "aoc-codespace",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",  // Any generic, debian-based image.
+    "features": {
+        "ghcr.io/devcontainers/features/go:1": { // go toolchain
+            "version": "1.18"
+        },
+        "ghcr.io/devcontainers/features/docker-in-docker:1": { // for standard docker support
+            "version": "latest",
+            "moby": true
+        },
+        "ghcr.io/tailscale/codespace/tailscale:1": {}, // if you use tailscale, uses post-start script to join your tailnet
+		"ghcr.io/devcontainers/features/sshd:1": {} // makes your codespace ssh-enabled with port 2222
+	  },
+    "customizations": {
+        "dotfiles": "github.com/jnericks/env" // Optional: A repo containing custom dotfiles.
+    },
+	"postStartCommand": "/bin/bash -c .devcontainer/post-start.sh" // for any commands that need to run after the container starts
+                                                                   // see placeholder post-start.sh for example
+}
